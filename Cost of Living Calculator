@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cost of Living Calculator — Black to Mexico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FAF6F0;
+    --ink:#2B2320;
+    --muted:#6B6259;
+    --terra:#A0522D;
+    --terra-deep:#7C3F22;
+    --teal:#2F4F4F;
+    --turq:#3E9C93;
+    --line:#D9CFC2;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Montserrat',sans-serif;
+    line-height:1.55;
+    padding:32px 16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:620px;margin:0 auto;}
+
+  .eyebrow{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:500;
+    color:var(--teal);
+    font-size:1rem;
+    text-align:center;
+    margin:0 0 6px;
+  }
+  h1.title{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(1.9rem,5vw,2.5rem);
+    color:var(--terra);
+    text-align:center;
+    margin:0 0 28px;
+    letter-spacing:-0.01em;
+  }
+
+  .steps{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:28px;
+  }
+  .step-dot{
+    width:34px;
+    height:5px;
+    border-radius:3px;
+    background:var(--line);
+    transition:background .25s ease;
+  }
+  .step-dot.active{background:var(--turq);}
+  .step-dot.done{background:var(--terra);}
+
+  .card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:32px;
+    box-shadow:0 2px 10px rgba(43,35,32,0.05);
+  }
+
+  h2.question{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:1.5rem;
+    color:var(--ink);
+    margin:0 0 6px;
+  }
+  p.subtext{
+    color:var(--muted);
+    font-size:.95rem;
+    margin:0 0 22px;
+  }
+
+  .option-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:8px;
+  }
+  @media (max-width:480px){
+    .option-grid{grid-template-columns:1fr;}
+  }
+  .option{
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    background:var(--white);
+    cursor:pointer;
+    text-align:left;
+    transition:border-color .15s ease, background .15s ease;
+    font-family:'Montserrat',sans-serif;
+  }
+  .option:hover{border-color:var(--turq);}
+  .option.selected{
+    border-color:var(--turq);
+    background:rgba(62,156,147,0.07);
+  }
+  .option .opt-title{
+    font-weight:700;
+    font-size:1rem;
+    color:var(--ink);
+    margin-bottom:3px;
+  }
+  .option .opt-sub{
+    font-size:.83rem;
+    color:var(--muted);
+  }
+
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:26px;
+  }
+  .btn{
+    font-family:'Montserrat',sans-serif;
+    font-weight:600;
+    font-size:.95rem;
+    padding:12px 24px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-primary{background:var(--turq);color:#fff;}
+  .btn-primary:hover:not(:disabled){box-shadow:0 6px 16px rgba(62,156,147,0.35);transform:translateY(-1px);}
+  .btn-ghost{background:transparent;color:var(--teal);padding:12px 8px;}
+  .btn-ghost:hover{color:var(--terra);}
+
+  .rate-line{
+    font-size:.85rem;
+    color:var(--muted);
+    text-align:center;
+    margin-bottom:18px;
+  }
+  .currency-toggle{
+    display:flex;
+    justify-content:center;
+    gap:6px;
+    margin-bottom:22px;
+  }
+  .cur-btn{
+    font-family:'Montserrat',sans-serif;
+    font-weight:600;
+    font-size:.85rem;
+    padding:8px 18px;
+    border-radius:999px;
+    border:1.5px solid var(--line);
+    background:var(--white);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .cur-btn.active{background:var(--terra);color:#fff;border-color:var(--terra);}
+
+  .total-box{
+    background:var(--cream);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px 22px;
+    text-align:center;
+    margin-bottom:22px;
+  }
+  .total-label{
+    font-size:.85rem;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  .total-amount{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:2.1rem;
+    color:var(--terra);
+  }
+  .total-sub{font-size:.8rem;color:var(--muted);margin-top:4px;}
+
+  .breakdown{list-style:none;margin:0;padding:0;}
+  .breakdown li{
+    display:flex;
+    justify-content:space-between;
+    padding:11px 0;
+    border-bottom:1px solid var(--line);
+    font-size:.95rem;
+  }
+  .breakdown li:last-child{border-bottom:none;}
+  .cat-name{color:var(--ink);font-weight:500;}
+  .cat-amount{color:var(--teal);font-weight:600;}
+
+  .tip-box{
+    margin-top:20px;
+    padding:14px 16px;
+    background:rgba(160,82,45,0.08);
+    border-left:3px solid var(--terra);
+    border-radius:4px;
+    font-size:.87rem;
+    color:var(--ink);
+  }
+  .tip-box b{color:var(--terra-deep);}
+
+  .disclaimer{
+    font-size:.78rem;
+    color:var(--muted);
+    text-align:center;
+    margin-top:22px;
+    line-height:1.5;
+  }
+
+  .restart-link{
+    display:block;
+    text-align:center;
+    margin-top:16px;
+    font-size:.85rem;
+    color:var(--teal);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Your roadmap, in numbers</p>
+  <h1 class="title">Cost of Living Calculator</h1>
+
+  <div class="steps" id="stepDots"></div>
+
+  <div class="card" id="cardContent"></div>
+</div>
+
+<script>
+const DESTINATIONS = {
+  cancun: {
+    name: "Cancún",
+    neighborhoods: [
+      { key: "zona_hotelera", name: "Zona Hotelera", sub: "Resort strip, most expensive", rentUSD: 1500 },
+      { key: "centro_sm", name: "El Centro / Supermanzanas", sub: "Local, real neighborhood life", rentUSD: 575 },
+      { key: "puerto_cancun", name: "Puerto Cancún", sub: "Upscale, marina & golf", rentUSD: 1400 },
+    ],
+    tip: "SM 15, 24, 25, and 27 are the most expat-friendly Supermanzanas. Avoid SM 21 and Regiones 92, 94, and 228 — real safety concerns, not tourist or expat areas."
+  },
+  playa: {
+    name: "Playa del Carmen",
+    neighborhoods: [
+      { key: "centro", name: "Centro", sub: "Vibrant, walkable, touristy", rentUSD: 1058 },
+      { key: "playacar", name: "Playacar", sub: "Upscale, gated, quiet", rentUSD: 1300 },
+      { key: "ejido", name: "Ejido", sub: "Authentic, local, affordable", rentUSD: 470 },
+    ],
+    tip: "Playa del Carmen has the strongest Black expat community of the four destinations."
+  },
+  tulum: {
+    name: "Tulum",
+    neighborhoods: [
+      { key: "beach", name: "Tulum Beach", sub: "Beachfront, bohemian, expensive", rentUSD: 2350 },
+      { key: "pueblo", name: "Tulum Pueblo", sub: "Downtown, more affordable", rentUSD: 880 },
+      { key: "aldea_zama", name: "Aldea Zama", sub: "Modern, family-friendly", rentUSD: 1470 },
+    ],
+    tip: "Tulum Pueblo offers better infrastructure and easier daily living than the Beach Zone, at roughly a third of the cost."
+  },
+  puerto_morelos: {
+    name: "Puerto Morelos",
+    neighborhoods: [
+      { key: "centro_pm", name: "Centro", sub: "Small-town, walkable, safe", rentUSD: 705 },
+      { key: "villas_morelos", name: "Villas Morelos", sub: "Quiet, residential", rentUSD: 590 },
+      { key: "ruta_cenotes", name: "Ruta de los Cenotes", sub: "Jungle, eco, off-grid", rentUSD: 470 },
+    ],
+    tip: "The most affordable of the four destinations, with the calmest day-to-day pace."
+  }
+};
+
+const BASE_COSTS = {
+  1: { food: 275, transport: 60, healthcare: 90, utilities: 65, entertainment: 120 },
+  2: { food: 460, transport: 90, healthcare: 150, utilities: 80, entertainment: 180 },
+  3: { food: 620, transport: 110, healthcare: 210, utilities: 95, entertainment: 220 },
+};
+
+let state = { step: 1, destination: null, neighborhood: null, familySize: null, currency: "USD" };
+let exchangeRate = 17.0;
+
+fetch("https://api.frankfurter.app/latest?from=USD&to=MXN")
+  .then(r => r.json())
+  .then(d => { if (d && d.rates && d.rates.MXN) exchangeRate = d.rates.MXN; })
+  .catch(() => {});
+
+function renderDots(){
+  const dots = document.getElementById("stepDots");
+  dots.innerHTML = "";
+  for (let i = 1; i <= 4; i++){
+    const dot = document.createElement("div");
+    dot.className = "step-dot" + (i === state.step ? " active" : i < state.step ? " done" : "");
+    dots.appendChild(dot);
+  }
+}
+
+function render(){
+  renderDots();
+  const el = document.getElementById("cardContent");
+  if (state.step === 1) el.innerHTML = stepDestination();
+  else if (state.step === 2) el.innerHTML = stepNeighborhood();
+  else if (state.step === 3) el.innerHTML = stepFamily();
+  else el.innerHTML = stepResults();
+  attachHandlers();
+}
+
+function stepDestination(){
+  const opts = Object.entries(DESTINATIONS).map(([key, d]) =>
+    `<div class="option ${state.destination===key?'selected':''}" data-action="dest" data-key="${key}">
+      <div class="opt-title">${d.name}</div>
+    </div>`
+  ).join("");
+  return `
+    <h2 class="question">Where are you headed?</h2>
+    <p class="subtext">Choose the destination you're planning for.</p>
+    <div class="option-grid">${opts}</div>
+    <div class="nav-row">
+      <span></span>
+      <button class="btn btn-primary" id="nextBtn" ${!state.destination?'disabled':''}>Continue</button>
+    </div>`;
+}
+
+function stepNeighborhood(){
+  const dest = DESTINATIONS[state.destination];
+  const opts = dest.neighborhoods.map(n =>
+    `<div class="option ${state.neighborhood===n.key?'selected':''}" data-action="hood" data-key="${n.key}">
+      <div class="opt-title">${n.name}</div>
+      <div class="opt-sub">${n.sub}</div>
+    </div>`
+  ).join("");
+  return `
+    <h2 class="question">Which part of ${dest.name}?</h2>
+    <p class="subtext">Rent varies significantly by neighborhood — pick the one closest to your plan.</p>
+    <div class="option-grid" style="grid-template-columns:1fr;">${opts}</div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" data-action="back">Back</button>
+      <button class="btn btn-primary" id="nextBtn" ${!state.neighborhood?'disabled':''}>Continue</button>
+    </div>`;
+}
+
+function stepFamily(){
+  const sizes = [
+    {key:1, label:"Just me", sub:"Solo"},
+    {key:2, label:"2 people", sub:"Couple"},
+    {key:3, label:"3+ people", sub:"Family"},
+  ];
+  const opts = sizes.map(s =>
+    `<div class="option ${state.familySize===s.key?'selected':''}" data-action="fam" data-key="${s.key}">
+      <div class="opt-title">${s.label}</div>
+      <div class="opt-sub">${s.sub}</div>
+    </div>`
+  ).join("");
+  return `
+    <h2 class="question">Who's making the move?</h2>
+    <p class="subtext">Family size affects food, healthcare, and daily living costs.</p>
+    <div class="option-grid">${opts}</div>
+    <div class="nav-row">
+      <button class="btn btn-ghost" data-action="back">Back</button>
+      <button class="btn btn-primary" id="nextBtn" ${!state.familySize?'disabled':''}>See My Estimate</button>
+    </div>`;
+}
+
+function stepResults(){
+  const dest = DESTINATIONS[state.destination];
+  const hood = dest.neighborhoods.find(n => n.key === state.neighborhood);
+  const costs = BASE_COSTS[state.familySize];
+  const total = hood.rentUSD + costs.food + costs.transport + costs.healthcare + costs.utilities + costs.entertainment;
+
+  const conv = v => state.currency === "USD" ? `$${v.toLocaleString()}` : `$${Math.round(v*exchangeRate).toLocaleString()}`;
+
+  return `
+    <h2 class="question">Your Estimate: ${hood.name}, ${dest.name}</h2>
+    <p class="subtext">Based on real neighborhood data and verified community research.</p>
+
+    <div class="currency-toggle">
+      <button class="cur-btn ${state.currency==='USD'?'active':''}" data-action="cur" data-key="USD">USD ($)</button>
+      <button class="cur-btn ${state.currency==='MXN'?'active':''}" data-action="cur" data-key="MXN">MXN ($)</button>
+    </div>
+    <p class="rate-line">Rate: 1 USD ≈ ${exchangeRate.toFixed(2)} MXN (live)</p>
+
+    <div class="total-box">
+      <div class="total-label">Estimated Monthly Total</div>
+      <div class="total-amount">${conv(total)}</div>
+      <div class="total-sub">for ${state.familySize === 1 ? "1 person" : state.familySize + " people"}</div>
+    </div>
+
+    <ul class="breakdown">
+      <li><span class="cat-name">Housing</span><span class="cat-amount">${conv(hood.rentUSD)}</span></li>
+      <li><span class="cat-name">Food & Groceries</span><span class="cat-amount">${conv(costs.food)}</span></li>
+      <li><span class="cat-name">Transportation</span><span class="cat-amount">${conv(costs.transport)}</span></li>
+      <li><span class="cat-name">Healthcare</span><span class="cat-amount">${conv(costs.healthcare)}</span></li>
+      <li><span class="cat-name">Utilities & Internet</span><span class="cat-amount">${conv(costs.utilities)}</span></li>
+      <li><span class="cat-name">Entertainment & Lifestyle</span><span class="cat-amount">${conv(costs.entertainment)}</span></li>
+    </ul>
+
+    <div class="tip-box"><b>Local insight:</b> ${dest.tip}</div>
+
+    <p class="disclaimer">This is an estimate built from verified research, not a guarantee — actual costs shift with season, exact address, and lifestyle choices. Cross-reference with real, current accounts in the Circle before finalizing your budget.</p>
+    <span class="restart-link" data-action="restart">Start over</span>
+  `;
+}
+
+function attachHandlers(){
+  document.querySelectorAll("[data-action='dest']").forEach(el => el.onclick = () => {
+    state.destination = el.dataset.key; state.neighborhood = null; render();
+  });
+  document.querySelectorAll("[data-action='hood']").forEach(el => el.onclick = () => {
+    state.neighborhood = el.dataset.key; render();
+  });
+  document.querySelectorAll("[data-action='fam']").forEach(el => el.onclick = () => {
+    state.familySize = parseInt(el.dataset.key); render();
+  });
+  document.querySelectorAll("[data-action='cur']").forEach(el => el.onclick = () => {
+    state.currency = el.dataset.key; render();
+  });
+  const back = document.querySelector("[data-action='back']");
+  if (back) back.onclick = () => { state.step -= 1; render(); };
+  const restart = document.querySelector("[data-action='restart']");
+  if (restart) restart.onclick = () => { state = {step:1, destination:null, neighborhood:null, familySize:null, currency:"USD"}; render(); };
+  const next = document.getElementById("nextBtn");
+  if (next) next.onclick = () => { state.step += 1; render(); };
+}
+
+render();
+</script>
+</body>
+</html>
